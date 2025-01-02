@@ -10,11 +10,11 @@ def add_time(start, duration,day=""):
     if duration == '0:00':
         new_time = start
     else:
-        new_time = calc_time(hours,mins,hours_add,mins_add,hour_prefix)
+        new_time = calc_time(hours,mins,hours_add,mins_add,hour_prefix,day)
     return new_time
 
 
-def calc_time(hours,mins,hours_add,mins_add,hour_prefix):
+def calc_time(hours,mins,hours_add,mins_add,hour_prefix,day):
     cycles = 0
     if hours_add >= 24:
         cycles = hours_add // 24
@@ -45,13 +45,37 @@ def calc_time(hours,mins,hours_add,mins_add,hour_prefix):
         if hours_end == 0:
             hours_end = 12
             hour_prefix = 'PM'
-    if cycles == 1:
-        return f'{hours_end}:{final_mins} {hour_prefix} (next day)'
-    elif cycles > 1:
-        return f'{hours_end}:{final_mins} {hour_prefix} ({cycles} days later)'
+    if not day:
+        if cycles == 1:
+            return f'{hours_end}:{final_mins} {hour_prefix} (next day)'
+        elif cycles > 1:
+            return f'{hours_end}:{final_mins} {hour_prefix} ({cycles} days later)'
+        else:
+            return f'{hours_end}:{final_mins} {hour_prefix}'
     else:
-        return f'{hours_end}:{final_mins} {hour_prefix}'
-
+        new_day = day_calc(day,cycles)
+        if cycles == 1:
+            return f'{hours_end}:{final_mins} {hour_prefix}, {new_day} (next day)'
+        elif cycles > 1:
+            return f'{hours_end}:{final_mins} {hour_prefix}, {new_day} ({cycles} days later)'
+        else:
+            return f'{hours_end}:{final_mins} {hour_prefix}, {new_day}'
 def day_calc(day,cycles):
-    pass
-print(add_time('11:55 PM', '0:05'))
+    week = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+    day = day.lower()
+    index_day = week.index(day)
+    new_day = None
+    if cycles == 0:
+        new_day = week[index_day]
+    elif cycles <= 7:
+        new_day = week[index_day + cycles]
+    else:
+        n = 0
+        for _ in range(index_day + cycles + 1):
+            n += 1
+            if n > 6:
+                n = 0
+        new_day = week[n - 1]
+    return new_day.capitalize()
+
+print(add_time('8:16 PM', '466:02', 'tuesday'))
